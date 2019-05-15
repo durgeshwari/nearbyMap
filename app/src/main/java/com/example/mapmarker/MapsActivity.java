@@ -28,6 +28,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -57,12 +59,13 @@ public class MapsActivity extends AppCompatActivity
     Location mLastLocation;
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
-
+    Button btnRst;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        btnRst=(Button) findViewById(R.id.btnRestaurant);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
@@ -79,7 +82,11 @@ public class MapsActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
     }
+
+
 
     private boolean CheckGooglePlayServices() {
         GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
@@ -94,6 +101,7 @@ public class MapsActivity extends AppCompatActivity
         return true;
     }
 
+    //in onMapReady build a Google API Client and then enable current user location using mMap.setMyLocationEnabled(true).
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -115,15 +123,6 @@ public class MapsActivity extends AppCompatActivity
         return (googlePlacesUrl.toString());
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -161,6 +160,24 @@ public class MapsActivity extends AppCompatActivity
                 Toast.makeText(MapsActivity.this,"Nearby Hospitals", Toast.LENGTH_LONG).show();
             }
         });*/
+        btnRst.setOnClickListener(new View.OnClickListener() {
+            String Restaurant = "restaurant";
+
+            @Override
+            public void onClick(View v) {
+                Log.d("onClick", "Button is Clicked");
+                mMap.clear();
+                String url = getUrl(latitude, longitude, Restaurant);
+                Object[] DataTransfer = new Object[2];
+                DataTransfer[0] = mMap;
+                DataTransfer[1] = url;
+                Log.d("onClick", url);
+                GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
+                getNearbyPlacesData.execute(DataTransfer);
+                Toast.makeText(MapsActivity.this,"Nearby Restaurants", Toast.LENGTH_LONG).show();
+
+            }
+        });
 
     }
 
